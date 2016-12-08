@@ -1,0 +1,93 @@
+/*
+ * Copyright (C) 2016 BROADSoftware
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+ 
+
+defaultTasks 'all'
+
+
+subprojects {
+
+	apply plugin: 'java'
+	apply plugin: 'eclipse'
+
+	repositories {
+    	jcenter()
+	}
+
+	// Refer to https://issues.gradle.org/browse/GRADLE-1010
+	eclipseJdt << {
+ 		File f = file('.settings/org.eclipse.core.resources.prefs')
+    	f.write('eclipse.preferences.version=1\n')
+    	f.append('encoding/<project>=UTF-8')
+	}
+	
+	test {
+    	testLogging {
+    	    events "passed", "skipped", "failed"
+    	    exceptionFormat = 'full'
+    	}
+	}
+
+	task sourcesJar(type: Jar) {
+    	classifier = 'sources'
+    	from sourceSets.main.allSource
+	}
+
+	task docJar(type: Jar, dependsOn: javadoc) {
+    	classifier = 'docs'
+    	from javadoc.destinationDir
+	}
+
+	artifacts {
+    	archives sourcesJar
+    	archives docJar
+	}
+
+}
+
+
+// A first method to handle inter-projet dependencies. This in fact will generate dependency in eclipse project.
+// And each run scan all dependencies project.
+/*
+project(':main') {
+	dependencies {
+		compile project(':proto2')
+		compile project(':console1')
+	}
+}
+*/
+
+// Another method, preserving eclipse project independancy
+// As previous method, drawback is we re-scan all dependencies on each run.
+/* 
+project(':main') {
+	tasks.compileJava.dependsOn ':proto2:uploadArchives'
+	tasks.compileJava.dependsOn ':console1:uploadArchives'
+}
+*/
+
+// So, Here is a third method. This is the only way I found to order a build (Except defaultTask, which also respect the provided order)
+// Advantage is project are not coupled anymore, excepted by this task.
+// Drawback is, when not going throuht this task, there is a risk of being un-synchronous.
+// Also, we can call a gradle script in a separated context (Using dir or buildFile attribute) (Refer to 62.5 of gradle doc)
+task all(type: GradleBuild) {
+	tasks = [
+		':hbdump:fatJar', 
+		':hbload:fatJar' 
+	]
+}
+
+
