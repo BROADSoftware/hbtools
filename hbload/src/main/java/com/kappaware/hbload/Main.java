@@ -2,10 +2,6 @@ package com.kappaware.hbload;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Vector;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
@@ -39,7 +35,7 @@ public class Main {
 			throw new ConfigurationException(String.format("Unable to open '%s' for reading", file.getAbsolutePath()));
 		}
 		HDataFileDesc dataString = HDataFileDesc.fromFile(file);
-		HDataFile data = new HDataFile(dataString);
+		HDataFile.TableBinary data = new HDataFile.TableBinary(dataString);
 		// The following will remove the message: 2014-06-14 01:38:59.359 java[993:1903] Unable to load realm info from SCDynamicStore
 		// Equivalent to HADOOP_OPTS="${HADOOP_OPTS} -Djava.security.krb5.conf=/dev/null"
 		// Of course, should be configured properly in case of use of Kerberos
@@ -63,7 +59,6 @@ public class Main {
 					if(result.size() == 0) {
 						if(parameters.isAddRow()) {
 							log.debug(String.format("Will add a full row for rowkey '%s'", Bytes.toStringBinary(rowKey)));
-							Map<byte[], Map>
 							Put put = new Put(rowKey);
 							
 							
