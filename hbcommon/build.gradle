@@ -13,29 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
 
+defaultTasks 'jar', 'javadoc'
 
 dependencies {
- 	compile project(':hbcommon')        
+    compile "org.slf4j:slf4j-api:$sl4jApiVersion"
+ 	compile "net.sf.jopt-simple:jopt-simple:$joptVersion"
+    compile "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     compile "org.apache.hbase:hbase-client:$hbaseVersion"
-    compile "org.apache.hadoop:hadoop-mapreduce-client-core:$hadoopVersion"		
-    compile "org.apache.hadoop:hadoop-common:$hadoopVersion"		
-    compile "org.apache.hadoop:hadoop-auth:$hadoopVersion"		
     testCompile "junit:junit:$junitVersion"
 }
-
-
-//create a single Jar with all dependencies
-task fatJar(type: Jar) {
-	manifest {
-        attributes 'Implementation-Title': 'memfiller', 
-        	'Implementation-Version': version,
-        	'Main-Class': 'com.kappaware.hbload.Main'
-    }
-    baseName = project.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
-

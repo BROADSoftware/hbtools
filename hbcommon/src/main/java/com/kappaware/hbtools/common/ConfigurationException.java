@@ -13,27 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
- 
+package com.kappaware.hbtools.common;
 
+@SuppressWarnings("serial")
+public class ConfigurationException extends Exception {
 
-dependencies {
- 	compile project(':hbcommon')        
-    testCompile "junit:junit:$junitVersion"
- 	
+	public ConfigurationException(String m) {
+		super(m);
+	}
+
 }
-
-
-
-//create a single Jar with all dependencies
-task fatJar(type: Jar) {
-	manifest {
-        attributes 'Implementation-Title': 'memfiller', 
-        	'Implementation-Version': version,
-        	'Main-Class': 'com.kappaware.hbdump.Main'
-    }
-    baseName = project.name
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
-    with jar
-}
-
-
