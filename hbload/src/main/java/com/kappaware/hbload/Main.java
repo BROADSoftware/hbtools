@@ -20,22 +20,34 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.kappaware.hbtools.common.ConfigurationException;
-import com.kappaware.hbtools.common.HDataFile;
-import com.kappaware.hbtools.common.HDataFileDesc;
+import com.kappaware.hbtools.common.HDataFileBinary.ColFamBinary;
+import com.kappaware.hbtools.common.HDataFileBinary.RowBinary;
+import com.kappaware.hbtools.common.HDataFileBinary.TableBinary;
+import com.kappaware.hbtools.common.HDataFileString.TableString;
 
 public class Main {
 	static Logger log = LoggerFactory.getLogger(Main.class);
 
+	static public void main(String[] argv) {
+		log.info("hbload start");
+		log.debug("hbload DEBUG enabled");
+		try {
+			main2(argv);
+		} catch (ConfigurationException | IOException e) {
+			log.error(e.getMessage());
+			System.err.println("ERROR: " + e.getMessage());
+			System.exit(1);
+		} 
+	}
 	
 	static public void main2(String[] argv) throws ConfigurationException, JsonParseException, JsonMappingException, IOException {
-		log.info("hbload start");
 		Parameters parameters = new Parameters(argv);
 		File file = new File(parameters.getInputFile());
 		if (!file.canRead()) {
 			throw new ConfigurationException(String.format("Unable to open '%s' for reading", file.getAbsolutePath()));
 		}
-		HDataFileDesc dataString = HDataFileDesc.fromFile(file);
-		HDataFile.TableBinary data = new HDataFile.TableBinary(dataString);
+		TableString dataString = TableString.fromFile(file);
+		TableBinary data = new TableBinary(dataString);
 		// The following will remove the message: 2014-06-14 01:38:59.359 java[993:1903] Unable to load realm info from SCDynamicStore
 		// Equivalent to HADOOP_OPTS="${HADOOP_OPTS} -Djava.security.krb5.conf=/dev/null"
 		// Of course, should be configured properly in case of use of Kerberos
@@ -60,25 +72,25 @@ public class Main {
 						if(parameters.isAddRow()) {
 							log.debug(String.format("Will add a full row for rowkey '%s'", Bytes.toStringBinary(rowKey)));
 							Put put = new Put(rowKey);
-							
-							
-							
-							
+							RowBinary row = data.get(rowKey);
+							for(byte[] colFamName : row.keySet()) {
+								ColFamBinary colFam = row.get(colFamName);
+								for(byte[] colName : colFam.keySet()) {
+									put.addColumn(colFamName, colName, colFam.get(colName));
+								}
+							}
+							mutator.mutate(put);
 						} else {
 							log.debug(String.format("rowkey %s does not exist, by addRow is not set",  Bytes.toStringBinary(rowKey)));
 						}
-						
 					} else {
-						
+						log.debug(String.format("rowkey %s exists, NOT YET IMPLEMENTED",  Bytes.toStringBinary(rowKey)));
 					}
 				}
-				
 			}
-			
-			
-			
-			
+			mutator.flush();
 		} finally {
+			mutator.close();
 			table.close();
 			connection.close();
 		}

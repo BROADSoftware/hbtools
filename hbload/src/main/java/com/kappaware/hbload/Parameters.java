@@ -15,7 +15,7 @@ public class Parameters extends BaseParameters {
 
 	public Parameters(String[] argv) throws ConfigurationException {
 		super();
-		INPUT_FILE_OPT = parser.accepts("inputFile", "HBase data").withRequiredArg().describedAs("input file").ofType(String.class).required();
+		INPUT_FILE_OPT = parser.accepts("inputFile", "HBase JSON data file").withRequiredArg().describedAs("input file").ofType(String.class).required();
 		ADD_ROW_OPT = parser.accepts("addRow", "Add row in table if does not exist").withRequiredArg().describedAs("yes|no").ofType(Boolean.class).defaultsTo(true);
 		DEL_ROW_OPT = parser.accepts("delRow", "Delete row in table if not defined in file").withRequiredArg().describedAs("yes|no").ofType(Boolean.class).defaultsTo(false);
 
