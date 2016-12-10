@@ -2,3 +2,6 @@
 include 'hbcommon'
 include 'hbdump'
 include 'hbload'
+include 'hbfaker'
+
+

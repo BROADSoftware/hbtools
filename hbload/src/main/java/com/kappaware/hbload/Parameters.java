@@ -1,11 +1,11 @@
 package com.kappaware.hbload;
 
-import com.kappaware.hbtools.common.BaseParameters;
 import com.kappaware.hbtools.common.ConfigurationException;
+import com.kappaware.hbtools.common.HBaseParameters;
 
 import joptsimple.OptionSpec;
 
-public class Parameters extends BaseParameters {
+public class Parameters extends HBaseParameters {
 	private OptionSpec<String> INPUT_FILE_OPT;
 	private OptionSpec<Boolean> ADD_ROW_OPT;
 	private OptionSpec<Boolean> DEL_ROW_OPT;

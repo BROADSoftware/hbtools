@@ -25,6 +25,10 @@ public class HDataFileString {
 		mapper.enable(SerializationFeature.INDENT_OUTPUT);
 	}
 
+	static public String esc(String s) {
+		return s.replace("\\", "\\\\").replace("\"", "\\\\x22");
+	}
+	
 	static public class ColFamString extends HashMap<String, String> {
 		private List<String> sortedColNames = null;
 
@@ -47,9 +51,9 @@ public class HDataFileString {
 			sb.append("{");
 			for(String colName : this.getSortedColNames()) {
 				sb.append(sep + "\"");
-				sb.append(colName.replace("\\", "\\\\"));
+				sb.append(esc(colName));
 				sb.append("\": \"" );
-				sb.append(this.get(colName).replace("\\", "\\\\"));
+				sb.append(esc(this.get(colName)));
 				sb.append('"');
 				sep = ", ";
 			}
@@ -80,7 +84,7 @@ public class HDataFileString {
 			sb.append("{");
 			for(String colFamName : this.getSortedColFamNames()) {
 				sb.append(sep + "\"");
-				sb.append(colFamName.replace("\\", "\\\\"));
+				sb.append(esc(colFamName));
 				sb.append("\": " );
 				sb.append(this.get(colFamName).toJson());
 				sep = ", ";
@@ -128,7 +132,7 @@ public class HDataFileString {
 			sb.append("{\n");
 			for(String rowName : this.getSortedRowNames()) {
 				sb.append("   " + sep + "\"");
-				sb.append(rowName.replace("\\", "\\\\"));
+				sb.append(esc(rowName));
 				sb.append("\": " );
 				sb.append(this.get(rowName).toJson());
 				sep = ",";
@@ -138,48 +142,5 @@ public class HDataFileString {
 			return sb.toString();
 		}
 		
-
-		public String toJsonStringSpecxx() {
-			StringBuffer sb = new StringBuffer();
-			sb.append("{\n");
-			List<String> keys = new Vector<String>(this.keySet());
-			Collections.sort(keys);
-			String sepKey = " ";
-			for (String k : keys) {
-				sb.append("   " + sepKey);
-				sepKey = ",";
-				sb.append('"');
-				sb.append(k.replace("\\", "\\\\"));
-				sb.append("\": {");
-				RowString row = this.get(k);
-				List<String> cfs = new Vector<String>(row.keySet());
-				Collections.sort(cfs);
-				String sepCf = " ";
-				for (String cf : cfs) {
-					sb.append(sepCf);
-					sepCf = ", ";
-					sb.append('"');
-					sb.append(cf.replace("\\", "\\\\"));
-					sb.append("\": {");
-					ColFamString colFam = row.get(cf);
-					List<String> cols = new Vector<String>(colFam.keySet());
-					Collections.sort(cols);
-					String sepCol = " ";
-					for (String col : cols) {
-						sb.append(sepCol);
-						sepCol = ", ";
-						sb.append('"');
-						sb.append(col.replace("\\", "\\\\"));
-						sb.append("\": \"");
-						sb.append(colFam.get(col).replace("\\", "\\\\"));
-						sb.append('"');
-					}
-					sb.append("}");
-				}
-				sb.append("}\n");
-			}
-			sb.append("}\n");
-			return sb.toString();
-		}
 	}
 }

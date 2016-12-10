@@ -86,7 +86,6 @@ public class TestHDataFileString {
 		System.out.println("-------------------------------");
 		System.out.println(d2.toJson());
 		*/
-		System.out.println(d2.toJson());
 	}
 
 	public TableString buildTestSet2() {
@@ -132,7 +131,10 @@ public class TestHDataFileString {
 		/*
 		System.out.println(d2.toJsonString());
 		System.out.println("-------------------------------");
-		System.out.println(d2.toJsonString());
+		System.out.println(d2.toJson());
 		*/
+		System.out.println(d2.toJsonString());
+		System.out.println("-------------------------------");
+		System.out.println(d2.toJson());
 	}
 }

@@ -1,13 +1,12 @@
 package com.kappaware.hbdump;
 
-import com.kappaware.hbtools.common.BaseParameters;
 import com.kappaware.hbtools.common.ConfigurationException;
+import com.kappaware.hbtools.common.HBaseParameters;
 
 import joptsimple.OptionSpec;
 
-public class Parameters extends BaseParameters {
+public class Parameters extends HBaseParameters {
 	private OptionSpec<String> OUTPUT_FILE_OPT;
-
 
 	public Parameters(String[] argv) throws ConfigurationException {
 		super();
@@ -20,5 +19,4 @@ public class Parameters extends BaseParameters {
 	public String getOutputFile() {
 		return result.valueOf(OUTPUT_FILE_OPT);
 	}
-	
 }

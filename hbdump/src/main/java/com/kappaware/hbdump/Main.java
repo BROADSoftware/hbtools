@@ -22,8 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kappaware.hbtools.common.ConfigurationException;
-import com.kappaware.hbtools.common.HDataFileBinary.ColFamBinary;
-import com.kappaware.hbtools.common.HDataFileBinary.RowBinary;
 import com.kappaware.hbtools.common.HDataFileString;
 import com.kappaware.hbtools.common.HDataFileString.ColFamString;
 import com.kappaware.hbtools.common.HDataFileString.RowString;
@@ -45,10 +43,6 @@ public class Main {
 
 	static public void main2(String[] argv) throws ConfigurationException, IOException {
 		Parameters parameters = new Parameters(argv);
-		// The following will remove the message: 2014-06-14 01:38:59.359 java[993:1903] Unable to load realm info from SCDynamicStore
-		// Equivalent to HADOOP_OPTS="${HADOOP_OPTS} -Djava.security.krb5.conf=/dev/null"
-		// Of course, should be configured properly in case of use of Kerberos
-		//System.setProperty("java.security.krb5.conf", "/dev/null");
 
 		PrintStream out = System.out;
 		if(parameters.getOutputFile() != null) {
@@ -83,11 +77,15 @@ public class Main {
 					}
 					colFam.put(toStr(CellUtil.cloneQualifier(cell)), toStr(CellUtil.cloneValue(cell)));
 				}
-				String js = toJson(toStr(result.getRow()), row);
+				String js = toJson(result.getRow(), row);
 				out.print("   " + sep1 + js);
 				sep1 = ",";
 			}
 			out.print("}\n");
+			out.flush();
+			if(out != System.out) {
+				out.close();
+			}
 			scanner1.close();
 		} finally {
 			table.close();
@@ -96,13 +94,13 @@ public class Main {
 	}
 	
 	private static String toStr(byte[] ba) {
-		return Bytes.toStringBinary(ba).replace("\\", "\\\\");
+		return Bytes.toStringBinary(ba);
 	}
 
-	private static String toJson(String rowKey, RowString row) {
+	private static String toJson(byte[] rowKey, RowString row) {
 		StringBuffer sb = new StringBuffer();
 		sb.append('"');
-		sb.append(rowKey);
+		sb.append(HDataFileString.esc(toStr(rowKey)));
 		sb.append("\": ");
 		sb.append(row.toJson());
 		sb.append("\n");

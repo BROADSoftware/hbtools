@@ -48,10 +48,6 @@ public class Main {
 		}
 		TableString dataString = TableString.fromFile(file);
 		TableBinary data = new TableBinary(dataString);
-		// The following will remove the message: 2014-06-14 01:38:59.359 java[993:1903] Unable to load realm info from SCDynamicStore
-		// Equivalent to HADOOP_OPTS="${HADOOP_OPTS} -Djava.security.krb5.conf=/dev/null"
-		// Of course, should be configured properly in case of use of Kerberos
-		//System.setProperty("java.security.krb5.conf", "/dev/null");
 
 		Configuration config = HBaseConfiguration.create();
 		config.set("hbase.zookeeper.quorum", parameters.getZookeeper());
