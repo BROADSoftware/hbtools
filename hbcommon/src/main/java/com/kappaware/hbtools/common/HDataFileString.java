@@ -92,6 +92,22 @@ public class HDataFileString {
 			sb.append("}");
 			return sb.toString();
 		}
+
+		public String getValue(String colFamilyName, String colName) {
+			ColFamString colFamily = this.get(colFamilyName);
+			if(colFamily != null) { 
+				return colFamily.get(colName);
+			} else {
+				return null;
+			}
+		}
+
+		public void removeValue(String colFamilyName, String colName) {
+			ColFamString colFamily = this.get(colFamilyName);
+			if(colFamily != null) {
+				colFamily.remove(colName);
+			} 
+		}
 	}
 
 	static public class TableString extends HashMap<String, RowString> {
@@ -113,7 +129,7 @@ public class HDataFileString {
 			return mapper.readValue(file, TableString.class);
 		}
 		
-		public List<String> getSortedRowNames() {
+		public List<String> getSortedRowkeys() {
 			if(this.sortedRowNames == null) {
 				this.sortedRowNames = new Vector<String>(this.keySet());
 				Collections.sort(this.sortedRowNames, new Comparator<String>(){
@@ -130,11 +146,11 @@ public class HDataFileString {
 			StringBuffer sb = new StringBuffer();
 			String sep = " ";
 			sb.append("{\n");
-			for(String rowName : this.getSortedRowNames()) {
+			for(String rowkey : this.getSortedRowkeys()) {
 				sb.append("   " + sep + "\"");
-				sb.append(esc(rowName));
+				sb.append(esc(rowkey));
 				sb.append("\": " );
-				sb.append(this.get(rowName).toJson());
+				sb.append(this.get(rowkey).toJson());
 				sep = ",";
 				sb.append("\n");
 			}
