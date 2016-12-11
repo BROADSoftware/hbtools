@@ -26,12 +26,14 @@ import joptsimple.BuiltinHelpFormatter;
 import joptsimple.OptionException;
 import joptsimple.OptionParser;
 import joptsimple.OptionSet;
+import joptsimple.OptionSpec;
 
 public class BaseParameters {
 	static Logger log = LoggerFactory.getLogger(BaseParameters.class);
 
 	protected OptionParser parser;
 	protected OptionSet result;
+	private OptionSpec<?> HELP_OPT;
 
 	@SuppressWarnings("serial")
 	private static class MyOptionException extends Exception {
@@ -43,17 +45,20 @@ public class BaseParameters {
 	public BaseParameters() {
 		parser = new OptionParser();
 		parser.formatHelpWith(new BuiltinHelpFormatter(120, 2));
-
+		HELP_OPT = parser.accepts("help", "Display this usage message").forHelp();
 	}
 
-	public void parse(String[] argv) throws ConfigurationException {
+	public void parse(String[] argv) throws ConfigurationException, ParserHelpException {
 		try {
 			result = parser.parse(argv);
+			if(result.has(HELP_OPT)) {
+				throw new ParserHelpException(usage(null));
+			}
 			if (result.nonOptionArguments().size() > 0 && result.nonOptionArguments().get(0).toString().trim().length() > 0) {
 				throw new MyOptionException(String.format("Unknow option '%s'", result.nonOptionArguments().get(0)));
 			}
 		} catch (OptionException | MyOptionException t) {
-			throw new ConfigurationException(usage(t.getMessage()));
+				throw new ConfigurationException(usage(t.getMessage()));
 		}
 	}
 

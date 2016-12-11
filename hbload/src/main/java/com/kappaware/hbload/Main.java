@@ -10,6 +10,7 @@ import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.kappaware.hbtools.common.ConfigurationException;
 import com.kappaware.hbtools.common.HDataFile.HDTable;
+import com.kappaware.hbtools.common.ParserHelpException;
 
 public class Main {
 	static Logger log = LoggerFactory.getLogger(Main.class);
@@ -23,10 +24,13 @@ public class Main {
 			log.error(e.getMessage());
 			System.err.println("ERROR: " + e.getMessage());
 			System.exit(1);
+		} catch (ParserHelpException e) {
+			System.out.println(e.getMessage());
+			System.exit(0);
 		} 
 	}
 	
-	static public void main2(String[] argv) throws ConfigurationException, JsonParseException, JsonMappingException, IOException {
+	static public void main2(String[] argv) throws ConfigurationException, JsonParseException, JsonMappingException, IOException, ParserHelpException {
 		Parameters parameters = new Parameters(argv);
 		File file = new File(parameters.getInputFile());
 		if (!file.canRead()) {

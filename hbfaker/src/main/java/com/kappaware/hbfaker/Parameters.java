@@ -2,6 +2,7 @@ package com.kappaware.hbfaker;
 
 import com.kappaware.hbtools.common.BaseParameters;
 import com.kappaware.hbtools.common.ConfigurationException;
+import com.kappaware.hbtools.common.ParserHelpException;
 
 import joptsimple.OptionSpec;
 
@@ -13,7 +14,7 @@ public class Parameters extends BaseParameters {
 	private OptionSpec<?> INJECT_HEX_OPT;
 
 
-	public Parameters(String[] argv) throws ConfigurationException {
+	public Parameters(String[] argv) throws ConfigurationException, ParserHelpException {
 		super();
 		OUTPUT_FILE_OPT = parser.accepts("outputFile", "HBase JSON output data file (Default to stdout)").withRequiredArg().describedAs("output file").ofType(String.class);
 		SEED_OPT = parser.accepts("seed", "Random starting point").withRequiredArg().describedAs("seed").ofType(Long.class).defaultsTo(1L);

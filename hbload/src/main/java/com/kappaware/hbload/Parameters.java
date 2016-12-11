@@ -2,6 +2,7 @@ package com.kappaware.hbload;
 
 import com.kappaware.hbtools.common.ConfigurationException;
 import com.kappaware.hbtools.common.HBaseParameters;
+import com.kappaware.hbtools.common.ParserHelpException;
 
 import joptsimple.OptionSpec;
 
@@ -13,7 +14,7 @@ public class Parameters extends HBaseParameters {
 	private OptionSpec<?> DEL_VALUE_OPT;
 	private OptionSpec<?> UPD_VALUE_OPT;
 
-	public Parameters(String[] argv) throws ConfigurationException {
+	public Parameters(String[] argv) throws ConfigurationException, ParserHelpException {
 		super();
 		INPUT_FILE_OPT = parser.accepts("inputFile", "HBase JSON data file").withRequiredArg().describedAs("input file").ofType(String.class).required();
 		
@@ -21,8 +22,8 @@ public class Parameters extends HBaseParameters {
 		DEL_ROW_OPT = parser.accepts("delRows", "Delete rows in table if not defined in file");
 
 		DONT_ADD_VALUE_OPT = parser.accepts("dontAddValue", "Do not add column value if not existing in a row");
-		DEL_VALUE_OPT = parser.accepts("delValue", "Delete column value in row if not defined in file");
-		UPD_VALUE_OPT = parser.accepts("updValue", "Update column value in row if different");
+		DEL_VALUE_OPT = parser.accepts("delValues", "Delete column value in row if not defined in file");
+		UPD_VALUE_OPT = parser.accepts("updValues", "Update column value in row if different");
 
 		this.parse(argv);
 	}
@@ -39,7 +40,7 @@ public class Parameters extends HBaseParameters {
 		return !result.has(DONT_ADD_ROW_OPT);
 	}
 
-	public boolean isDelRow() {
+	public boolean isDelRows() {
 		return result.has(DEL_ROW_OPT);
 	}
 	
@@ -47,11 +48,11 @@ public class Parameters extends HBaseParameters {
 		return !result.has(DONT_ADD_VALUE_OPT);
 	}
 	
-	public boolean isDelValue() {
+	public boolean isDelValues() {
 		return result.has(DEL_VALUE_OPT);
 	}
 	
-	public boolean isUpdValue() {
+	public boolean isUpdValues() {
 		return result.has(UPD_VALUE_OPT);
 	}
 	

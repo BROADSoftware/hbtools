@@ -66,7 +66,7 @@ public class Engine {
 				}
 			}
 			// Now, will handle row removal, if any
-			if (parameters.isDelRow()) {
+			if (parameters.isDelRows()) {
 				// In such case, we must scan all table to remove undefined row.
 				// We store row to delete in memory, as I am afraid of deletion side effect on the scanner.
 				List<byte[]> rowkeyToDelete = new Vector<byte[]>();
@@ -75,6 +75,7 @@ public class Engine {
 				for (Result result : scanner) {
 					byte[] row = result.getRow();
 					if(!data.containsKey(Bytes.toStringBinary(row))) {
+						log.debug(String.format("Will delete row '%s' as not in dataset anymore", Bytes.toStringBinary(row)));
 						rowkeyToDelete.add(row);
 					}
 				}
@@ -84,7 +85,9 @@ public class Engine {
 					Delete delete = new Delete(row);
 					mutator.mutate(delete);
 				}
-			} 
+			} else {
+				log.debug(String.format("No check will be performed on others row. delRows is not set."));
+			}
 			mutator.flush();
 		} finally {
 			mutator.close();
@@ -104,19 +107,19 @@ public class Engine {
 			CellWrapper cellw = new CellWrapper(cell);
 			String newValue = row.getValue(cellw.getFamillyString(), cellw.getQualifierString());
 			if (newValue == null) {
-				if (parameters.isDelValue()) {
+				if (parameters.isDelValues()) {
 					log.debug(String.format("Will delete cell '%s'", cellw.toString()));
 					del.addColumn(cellw.getFamillyByte(), cellw.getQualifierByte());
 				} else {
-					log.debug(String.format("Cell '%s' not in provided dataset, but delValue is not set", cellw.toString()));
+					log.debug(String.format("Cell '%s' not in provided dataset, but delValues is not set", cellw.toString()));
 				}
 			} else {
 				if (!cellw.getValueString().equals(newValue)) {
-					if (this.parameters.isUpdValue()) {
+					if (this.parameters.isUpdValues()) {
 						log.debug(String.format("Will update cell '%s' with '%s'", cellw.toString(), newValue));
 						put.add(cellw.getFamillyByte(), cellw.getQualifierByte(), newValue);
 					} else {
-						log.debug(String.format("Will NOT update cell '%s' with '%s'. updValue is not set ", cellw.toString(), newValue));
+						log.debug(String.format("Will NOT update cell '%s' with '%s'. updValues is not set ", cellw.toString(), newValue));
 					}
 				}
 				// We remove from the dataset to mark as handled

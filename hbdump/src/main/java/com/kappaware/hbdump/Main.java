@@ -25,6 +25,7 @@ import com.kappaware.hbtools.common.ConfigurationException;
 import com.kappaware.hbtools.common.HDataFile;
 import com.kappaware.hbtools.common.HDataFile.HDFamily;
 import com.kappaware.hbtools.common.HDataFile.HDRow;
+import com.kappaware.hbtools.common.ParserHelpException;
 
 public class Main {
 	static Logger log = LoggerFactory.getLogger(Main.class);
@@ -38,10 +39,13 @@ public class Main {
 			log.error(e.getMessage());
 			System.err.println("ERROR: " + e.getMessage());
 			System.exit(1);
+		} catch (ParserHelpException e) {
+			System.out.println(e.getMessage());
+			System.exit(0);
 		}
 	}
 
-	static public void main2(String[] argv) throws ConfigurationException, IOException {
+	static public void main2(String[] argv) throws ConfigurationException, IOException, ParserHelpException {
 		Parameters parameters = new Parameters(argv);
 
 		PrintStream out = System.out;
