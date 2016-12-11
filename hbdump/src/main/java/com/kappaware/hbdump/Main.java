@@ -22,9 +22,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.kappaware.hbtools.common.ConfigurationException;
-import com.kappaware.hbtools.common.HDataFileString;
-import com.kappaware.hbtools.common.HDataFileString.ColFamString;
-import com.kappaware.hbtools.common.HDataFileString.RowString;
+import com.kappaware.hbtools.common.HDataFile;
+import com.kappaware.hbtools.common.HDataFile.HDFamily;
+import com.kappaware.hbtools.common.HDataFile.HDRow;
 
 public class Main {
 	static Logger log = LoggerFactory.getLogger(Main.class);
@@ -67,12 +67,12 @@ public class Main {
 			for (Result result : scanner1) {
 				//System.out.println(result);
 				List<Cell> cells = result.listCells();
-				RowString row = new RowString();
+				HDRow row = new HDRow();
 				for(Cell cell : cells) {
 					String colFamName = toStr(CellUtil.cloneFamily(cell));
-					ColFamString colFam = row.get(colFamName);
+					HDFamily colFam = row.get(colFamName);
 					if(colFam == null) {
-						colFam = new ColFamString();
+						colFam = new HDFamily();
 						row.put(colFamName, colFam);
 					}
 					colFam.put(toStr(CellUtil.cloneQualifier(cell)), toStr(CellUtil.cloneValue(cell)));
@@ -97,10 +97,10 @@ public class Main {
 		return Bytes.toStringBinary(ba);
 	}
 
-	private static String toJson(byte[] rowKey, RowString row) {
+	private static String toJson(byte[] rowKey, HDRow row) {
 		StringBuffer sb = new StringBuffer();
 		sb.append('"');
-		sb.append(HDataFileString.esc(toStr(rowKey)));
+		sb.append(HDataFile.esc(toStr(rowKey)));
 		sb.append("\": ");
 		sb.append(row.toJson());
 		sb.append("\n");

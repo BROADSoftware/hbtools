@@ -17,7 +17,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 
 @SuppressWarnings("serial")
-public class HDataFileString {
+public class HDataFile {
 
 	static ObjectMapper mapper;
 	static {
@@ -29,7 +29,7 @@ public class HDataFileString {
 		return s.replace("\\", "\\\\").replace("\"", "\\\\x22");
 	}
 	
-	static public class ColFamString extends HashMap<String, String> {
+	static public class HDFamily extends HashMap<String, String> {
 		private List<String> sortedColNames = null;
 
 		public List<String> getSortedColNames() {
@@ -62,7 +62,7 @@ public class HDataFileString {
 		}
 	}
 
-	static public class RowString extends HashMap<String, ColFamString> {
+	static public class HDRow extends HashMap<String, HDFamily> {
 		private List<String> sortedColFamNames = null;
 
 		public List<String> getSortedColFamNames() {
@@ -94,7 +94,7 @@ public class HDataFileString {
 		}
 
 		public String getValue(String colFamilyName, String colName) {
-			ColFamString colFamily = this.get(colFamilyName);
+			HDFamily colFamily = this.get(colFamilyName);
 			if(colFamily != null) { 
 				return colFamily.get(colName);
 			} else {
@@ -103,17 +103,17 @@ public class HDataFileString {
 		}
 
 		public void removeValue(String colFamilyName, String colName) {
-			ColFamString colFamily = this.get(colFamilyName);
+			HDFamily colFamily = this.get(colFamilyName);
 			if(colFamily != null) {
 				colFamily.remove(colName);
 			} 
 		}
 	}
 
-	static public class TableString extends HashMap<String, RowString> {
+	static public class HDTable extends HashMap<String, HDRow> {
 		private List<String> sortedRowNames = null;
 
-		public void addRow(String rowKey, RowString rowValues) {
+		public void addRow(String rowKey, HDRow rowValues) {
 			this.put(rowKey, rowValues);
 		}
 
@@ -121,12 +121,12 @@ public class HDataFileString {
 			return mapper.writeValueAsString(this);
 		}
 
-		static public TableString fromJson(String json) throws JsonParseException, JsonMappingException, IOException {
-			return mapper.readValue(json, TableString.class);
+		static public HDTable fromJson(String json) throws JsonParseException, JsonMappingException, IOException {
+			return mapper.readValue(json, HDTable.class);
 		}
 
-		static public TableString fromFile(File file) throws JsonParseException, JsonMappingException, IOException {
-			return mapper.readValue(file, TableString.class);
+		static public HDTable fromFile(File file) throws JsonParseException, JsonMappingException, IOException {
+			return mapper.readValue(file, HDTable.class);
 		}
 		
 		public List<String> getSortedRowkeys() {

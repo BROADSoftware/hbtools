@@ -6,8 +6,8 @@ import java.util.zip.CRC32;
 
 import com.github.javafaker.Faker;
 import com.github.javafaker.Name;
-import com.kappaware.hbtools.common.HDataFileString.ColFamString;
-import com.kappaware.hbtools.common.HDataFileString.RowString;
+import com.kappaware.hbtools.common.HDataFile.HDFamily;
+import com.kappaware.hbtools.common.HDataFile.HDRow;
 
 public class PersonEngine {
 	private PrintStream out;
@@ -24,7 +24,7 @@ public class PersonEngine {
 		out.print("{\n");
 		String sep = " ";
 		for (long i = 0; i < parameters.getCount(); i++) {
-			RowString row = new RowString();
+			HDRow row = new HDRow();
 
 			byte b = 0;
 			if (parameters.isDistributed() || parameters.isInjectHex()) {
@@ -33,7 +33,7 @@ public class PersonEngine {
 				b = (byte) (chksum.getValue() & 0xFF);
 			}
 
-			ColFamString colFamId = new ColFamString();
+			HDFamily colFamId = new HDFamily();
 			Name fakerName = faker.name();
 			colFamId.put("prefix", fakerName.prefix());
 			colFamId.put("fname", fakerName.firstName());
@@ -44,7 +44,7 @@ public class PersonEngine {
 			}
 			row.put("id", colFamId);
 
-			ColFamString colFamJob = new ColFamString();
+			HDFamily colFamJob = new HDFamily();
 			colFamJob.put("title", fakerName.title());
 			colFamJob.put("cpny", faker.company().name());
 			row.put("job", colFamJob);

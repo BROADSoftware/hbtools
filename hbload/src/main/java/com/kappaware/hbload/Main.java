@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.kappaware.hbtools.common.ConfigurationException;
-import com.kappaware.hbtools.common.HDataFileString.TableString;
+import com.kappaware.hbtools.common.HDataFile.HDTable;
 
 public class Main {
 	static Logger log = LoggerFactory.getLogger(Main.class);
@@ -32,7 +32,7 @@ public class Main {
 		if (!file.canRead()) {
 			throw new ConfigurationException(String.format("Unable to open '%s' for reading", file.getAbsolutePath()));
 		}
-		TableString data = TableString.fromFile(file);
+		HDTable data = HDTable.fromFile(file);
 		//TableBinary data = new TableBinary(dataString);
 		Engine engine = new Engine(parameters, data);
 		engine.run();

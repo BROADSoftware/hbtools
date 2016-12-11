@@ -21,15 +21,15 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.kappaware.hbtools.common.HDataFileString.ColFamString;
-import com.kappaware.hbtools.common.HDataFileString.RowString;
-import com.kappaware.hbtools.common.HDataFileString.TableString;
+import com.kappaware.hbtools.common.HDataFile.HDFamily;
+import com.kappaware.hbtools.common.HDataFile.HDRow;
+import com.kappaware.hbtools.common.HDataFile.HDTable;
 
 public class Engine {
 	static Logger log = LoggerFactory.getLogger(Engine.class);
 
 	private Parameters parameters;
-	private TableString data;
+	private HDTable data;
 	private Configuration config;
 	private TableName tableName;
 
@@ -37,7 +37,7 @@ public class Engine {
 	private Table table;
 	private BufferedMutator mutator;
 
-	Engine(Parameters parameters, TableString data) {
+	Engine(Parameters parameters, HDTable data) {
 		this.parameters = parameters;
 		this.data = data;
 		this.config = HBaseConfiguration.create();
@@ -98,7 +98,7 @@ public class Engine {
 		PutWrapper put = new PutWrapper(result.getRow());
 		DeleteWrapper del = new DeleteWrapper(result.getRow());
 		String rowkey = Bytes.toStringBinary(result.getRow());
-		RowString row = data.get(rowkey);
+		HDRow row = data.get(rowkey);
 		// First, handle Cell present in HBase table
 		for (Cell cell : cells) {
 			CellWrapper cellw = new CellWrapper(cell);
@@ -125,7 +125,7 @@ public class Engine {
 		}
 		// Now, we loop in remaining cell (Present in dataset, not in table)
 		for (String colFamilyName : row.keySet()) {
-			ColFamString colFamilly = row.get(colFamilyName);
+			HDFamily colFamilly = row.get(colFamilyName);
 			for (String colName : colFamilly.keySet()) {
 				if (this.parameters.isAddValue()) {
 					log.debug(String.format("Will add cell '%s:%s:%s:%s'", rowkey, colFamilly, colName, colFamilly.get(colName)));
@@ -142,9 +142,9 @@ public class Engine {
 
 	private void addRow(String rowKey) throws IOException {
 		PutWrapper put = new PutWrapper(rowKey);
-		RowString row = data.get(rowKey);
+		HDRow row = data.get(rowKey);
 		for (String colFamName : row.keySet()) {
-			ColFamString colFam = row.get(colFamName);
+			HDFamily colFam = row.get(colFamName);
 			for (String colName : colFam.keySet()) {
 				put.add(colFamName, colName, colFam.get(colName));
 			}
