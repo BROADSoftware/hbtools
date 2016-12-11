@@ -15,6 +15,8 @@
  */
  
 
+defaultTasks 'all'
+
 
 dependencies {
  	compile project(':hbcommon')        
@@ -33,9 +35,17 @@ task fatJar(type: Jar) {
         	'Implementation-Version': version,
         	'Main-Class': 'com.kappaware.hbload.Main'
     }
-    baseName = project.name
+    baseName = fatJarBaseName
     from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
     with jar
 }
 
+
+
+task all(type: GradleBuild) {
+  tasks =  [
+  	'fatJar_hdp24',
+  	'fatJar_cdh552'
+  ]
+}
 

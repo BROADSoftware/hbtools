@@ -16,14 +16,14 @@
  
 
 
+defaultTasks 'all'
+
 dependencies {
  	compile project(':hbcommon')        
  	compile "com.github.javafaker:javafaker:0.12"
     testCompile "junit:junit:$junitVersion"
  	
 }
-
-
 
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
@@ -38,3 +38,9 @@ task fatJar(type: Jar) {
 }
 
 
+
+task all(type: GradleBuild) {
+  tasks =  [
+  	'fatJar',
+  ]
+}
