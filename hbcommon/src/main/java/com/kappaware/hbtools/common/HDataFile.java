@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Vector;
 
 import org.apache.hadoop.hbase.util.Bytes;
@@ -32,6 +33,14 @@ public class HDataFile {
 	static public class HDFamily extends HashMap<String, String> {
 		private List<String> sortedColNames = null;
 
+		HDFamily cloneCanonical() {
+			HDFamily clone = new HDFamily();
+			for(Map.Entry<String, String> entry: this.entrySet()) {
+				clone.put(Bytes.toStringBinary(Bytes.toBytesBinary(entry.getKey())), Bytes.toStringBinary(Bytes.toBytesBinary(entry.getValue())));
+			}
+			return clone;
+		}
+		
 		public List<String> getSortedColNames() {
 			if(this.sortedColNames == null) {
 				this.sortedColNames = new Vector<String>(this.keySet());
@@ -57,7 +66,7 @@ public class HDataFile {
 				sb.append('"');
 				sep = ", ";
 			}
-			sb.append("}");
+			sb.append(" }");
 			return sb.toString();
 		}
 	}
@@ -65,6 +74,15 @@ public class HDataFile {
 	static public class HDRow extends HashMap<String, HDFamily> {
 		private List<String> sortedColFamNames = null;
 
+		HDRow cloneCanonical() {
+			HDRow clone = new HDRow();
+			for(Map.Entry<String, HDFamily> entry: this.entrySet()) {
+				clone.put(Bytes.toStringBinary(Bytes.toBytesBinary(entry.getKey())), entry.getValue().cloneCanonical());
+			}
+			return clone;
+		}
+
+		
 		public List<String> getSortedColFamNames() {
 			if(this.sortedColFamNames == null) {
 				this.sortedColFamNames = new Vector<String>(this.keySet());
@@ -89,7 +107,7 @@ public class HDataFile {
 				sb.append(this.get(colFamName).toJson());
 				sep = ", ";
 			}
-			sb.append("}");
+			sb.append(" }");
 			return sb.toString();
 		}
 
@@ -113,6 +131,21 @@ public class HDataFile {
 	static public class HDTable extends HashMap<String, HDRow> {
 		private List<String> sortedRowNames = null;
 
+		/**
+		 * Issue is the same binary string can have two representation. For example, "\x2EAAA" and ".AAA" represent the same byte[]
+		 * This will lead a lot of missbehavior.
+		 * To prevent this. we provide the cloneCanonical() function, which will adjust to ".AAA", the standard way for HBase 
+		 * @return
+		 */
+		public HDTable cloneCanonical() {
+			HDTable clone = new HDTable();
+			for(Map.Entry<String, HDRow> entry: this.entrySet()) {
+				clone.put(Bytes.toStringBinary(Bytes.toBytesBinary(entry.getKey())), entry.getValue().cloneCanonical());
+			}
+			return clone;
+		}
+		
+		
 		public void addRow(String rowKey, HDRow rowValues) {
 			this.put(rowKey, rowValues);
 		}

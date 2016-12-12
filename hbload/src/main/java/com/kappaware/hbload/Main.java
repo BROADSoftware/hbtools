@@ -36,8 +36,8 @@ public class Main {
 		if (!file.canRead()) {
 			throw new ConfigurationException(String.format("Unable to open '%s' for reading", file.getAbsolutePath()));
 		}
-		HDTable data = HDTable.fromFile(file);
-		//TableBinary data = new TableBinary(dataString);
+		HDTable data0 = HDTable.fromFile(file);
+		HDTable data = data0.cloneCanonical();
 		Engine engine = new Engine(parameters, data);
 		engine.run();
 	}

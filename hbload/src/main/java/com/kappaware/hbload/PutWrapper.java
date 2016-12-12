@@ -8,7 +8,7 @@ import org.apache.hadoop.hbase.util.Bytes;
 
 public class PutWrapper {
 	private Put put;
-	private int mutation = 0;
+	private int mutationCount = 0;
 	
 	PutWrapper(byte[] rowkey) {
 		this.put = new Put(rowkey);
@@ -19,20 +19,24 @@ public class PutWrapper {
 	}
 
 	public void add(byte[] famillyByte, byte[] qualifierByte, String value) {
-		this.mutation++;
+		this.mutationCount++;
 		put.addColumn(famillyByte, qualifierByte, Bytes.toBytesBinary(value));
 	}
 
 	public void add(String colFamilyName, String colName, String value) {
-		this.mutation++;
+		this.mutationCount++;
 		put.addColumn(Bytes.toBytesBinary(colFamilyName), Bytes.toBytesBinary(colName), Bytes.toBytesBinary(value));
 		
 	}
 
 	public void mutate(BufferedMutator mutator) throws IOException {
-		if(this.mutation > 0) {
+		if(this.mutationCount > 0) {
 			mutator.mutate(this.put);
 		}
+	}
+
+	public int getMutationCount() {
+		return this.mutationCount;
 	}
 
 

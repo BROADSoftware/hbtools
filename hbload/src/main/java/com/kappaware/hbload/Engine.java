@@ -50,19 +50,22 @@ public class Engine {
 		connection = ConnectionFactory.createConnection(config);
 		table = connection.getTable(tableName);
 		mutator = connection.getBufferedMutator(tableName);
+		int mutationCount = 0;
 		try {
 			// First, we will handle row presents in the provided dataset
 			for (String rowKey : data.getSortedRowkeys()) {
 				Result result = table.get(new Get(Bytes.toBytesBinary(rowKey)));
 				if (result.size() == 0) {
 					if (parameters.isAddRow()) {
-						log.debug(String.format("Will add a full row for rowkey '%s'", rowKey));
+						log.debug(String.format("Will add a new row for rowkey '%s'", rowKey));
 						this.addRow(rowKey);
+						mutationCount++;
 					} else {
-						log.debug(String.format("rowkey %s does not exist, but dontAddRow is set", rowKey));
+						log.debug(String.format("Will NOT add row for rowkey '%s' as --dontAddRow is set", rowKey));
 					}
 				} else {
-					this.adjustRow(result);
+					//log.debug(String.format("Will adjust row '%s'", rowKey));
+					mutationCount += this.adjustRow(result);
 				}
 			}
 			// Now, will handle row removal, if any
@@ -75,7 +78,7 @@ public class Engine {
 				for (Result result : scanner) {
 					byte[] row = result.getRow();
 					if(!data.containsKey(Bytes.toStringBinary(row))) {
-						log.debug(String.format("Will delete row '%s' as not in dataset anymore", Bytes.toStringBinary(row)));
+						log.debug(String.format("Will delete row for rowkey '%s'", Bytes.toStringBinary(row)));
 						rowkeyToDelete.add(row);
 					}
 				}
@@ -84,9 +87,10 @@ public class Engine {
 				for(byte[] row : rowkeyToDelete) {
 					Delete delete = new Delete(row);
 					mutator.mutate(delete);
+					mutationCount++;
 				}
 			} else {
-				log.debug(String.format("No check will be performed on others row. delRows is not set."));
+				log.debug(String.format("No check will be performed for row removal, as --delRows is not set."));
 			}
 			mutator.flush();
 		} finally {
@@ -94,13 +98,21 @@ public class Engine {
 			table.close();
 			connection.close();
 		}
+		log.info(String.format("hbload: %d modification(s)", mutationCount));
 	}
 
-	private void adjustRow(Result result) throws IOException {
+	/**
+	 * 
+	 * @param result
+	 * @return The number of mutations
+	 * @throws IOException
+	 */
+	private int adjustRow(Result result) throws IOException {
 		List<Cell> cells = result.listCells();
 		PutWrapper put = new PutWrapper(result.getRow());
 		DeleteWrapper del = new DeleteWrapper(result.getRow());
 		String rowkey = Bytes.toStringBinary(result.getRow());
+		//log.debug(String.format("Will loookup '%s'", rowkey));
 		HDRow row = data.get(rowkey);
 		// First, handle Cell present in HBase table
 		for (Cell cell : cells) {
@@ -111,7 +123,7 @@ public class Engine {
 					log.debug(String.format("Will delete cell '%s'", cellw.toString()));
 					del.addColumn(cellw.getFamillyByte(), cellw.getQualifierByte());
 				} else {
-					log.debug(String.format("Cell '%s' not in provided dataset, but delValues is not set", cellw.toString()));
+					log.debug(String.format("Will NOT delete cell '%s' as --delValues is not set", cellw.toString()));
 				}
 			} else {
 				if (!cellw.getValueString().equals(newValue)) {
@@ -119,7 +131,7 @@ public class Engine {
 						log.debug(String.format("Will update cell '%s' with '%s'", cellw.toString(), newValue));
 						put.add(cellw.getFamillyByte(), cellw.getQualifierByte(), newValue);
 					} else {
-						log.debug(String.format("Will NOT update cell '%s' with '%s'. updValues is not set ", cellw.toString(), newValue));
+						log.debug(String.format("Will NOT update cell '%s' with '%s' as --updValues is not set ", cellw.toString(), newValue));
 					}
 				}
 				// We remove from the dataset to mark as handled
@@ -131,16 +143,17 @@ public class Engine {
 			HDFamily colFamilly = row.get(colFamilyName);
 			for (String colName : colFamilly.keySet()) {
 				if (this.parameters.isAddValue()) {
-					log.debug(String.format("Will add cell '%s:%s:%s:%s'", rowkey, colFamilly, colName, colFamilly.get(colName)));
+					log.debug(String.format("Will add cell '%s:%s:%s:%s'", rowkey, colFamilyName, colName, colFamilly.get(colName)));
 					put.add(colFamilyName, colName, colFamilly.get(colName));
 				} else {
-					log.debug(String.format("Will NOT add cell '%s:%s:%s:%s'. dontAddValue is set", rowkey, colFamilly, colName, colFamilly.get(colName)));
+					log.debug(String.format("Will NOT add cell '%s:%s:%s:%s'as  --dontAddValue is set", rowkey, colFamilyName, colName, colFamilly.get(colName)));
 
 				}
 			}
 		}
 		put.mutate(mutator);
 		del.mutate(mutator);
+		return put.getMutationCount() + del.getMutationCount();
 	}
 
 	private void addRow(String rowKey) throws IOException {
