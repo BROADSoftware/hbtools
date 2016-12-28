@@ -29,7 +29,7 @@ dependencies {
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
 	manifest {
-        attributes 'Implementation-Title': 'memfiller', 
+        attributes 'Implementation-Title': 'hbdump', 
         	'Implementation-Version': version,
         	'Main-Class': 'com.kappaware.hbdump.Main'
     }

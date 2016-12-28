@@ -113,7 +113,9 @@ public class Engine {
 			table.close();
 			connection.close();
 		}
-		log.info(String.format("hbload: %d modification(s)", mutationCount));
+		String m = String.format("hbload: %d modification(s)", mutationCount);
+		System.out.println(m);
+		log.info(m);
 	}
 
 	/**

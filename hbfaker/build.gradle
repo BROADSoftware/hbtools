@@ -28,7 +28,7 @@ dependencies {
 //create a single Jar with all dependencies
 task fatJar(type: Jar) {
 	manifest {
-        attributes 'Implementation-Title': 'memfiller', 
+        attributes 'Implementation-Title': 'hbfaker', 
         	'Implementation-Version': version,
         	'Main-Class': 'com.kappaware.hbfaker.Main'
     }

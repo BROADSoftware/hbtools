@@ -115,7 +115,7 @@ If the hbase table already contains some data, the default behavior is 'Just add
 
 If you set the switch combination `--dontAddRow --dontAddValue`, then hbload will do nothing.
 
-If you set the switch combination `--delRows --delValue  --updValues`, this the content of the table will be adjusted to be fully identical to the content of the input file.  
+If you set the switch combination `--delRows --delValue  --updValues`, then the content of the table will be adjusted to be fully identical to the content of the input file.  
 
 ** WARNING: hbload does not dynamically create HBase column family. All column family referenced in the input file must exist. Or an error will be generated.** 
 
@@ -141,16 +141,16 @@ For example:
 
 ### Binary representation
 
-Internally, HBase does not handle String, but byte[] (Array of bytes). So, there is a need to represent binary data in string representation. Choice has been made to use the escape convention of the HBase function Bytes.toByteBinary() and Bytes.toStringBinary(), using the '\xXX" notation, where XX is the hexadecimal code if the byte.
+Internally, HBase does not handle String, but byte\[\] (Array of bytes). So, there is a need to represent binary data in string representation. Choice has been made to use the escape convention of the HBase function Bytes.toByteBinary() and Bytes.toStringBinary(), using the '\xXX" notation, where XX is the hexadecimal code if the byte.
 
-Note, the '\' itself must be escaped. For example, the binary code 1 will be represented by "\\0x01"
+Note, the '\' itself must be escaped. For example, the binary code 1 will be represented by "\\\\0x01"
 
-Also, note the hbdump will not escape printable characters, so, for example "7000003" and "\\x37000003" represents the same byte[] (x37 is the hexadecimal code of '7'). Same for "\\x2E000007" and ".000007"
+Also, note the hbdump will not escape printable characters, so, for example "7000003" and "\\\\x37000003" represents the same byte[] (x37 is the hexadecimal code of '7'). Same for "\\\\x2E000007" and ".000007"
 
 ***
 ## Limitations
 
-* hbtools does not handle Hbase cell's timestamp.
+* hbtools does not handle HBase cell's timestamp.
 
 ***
 ## License
