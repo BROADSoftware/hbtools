@@ -12,86 +12,61 @@ While hbdump works with a streaming pattern, as such will be able to dump data w
 *** 
 ## hbdump
 
-hbdump is provided as an all included jar (uberJar or fatJar)  on the [release pages](https://github.com/BROADSoftware/hbtools/releases).
+hbdump is provided as a jar on the [release pages](https://github.com/BROADSoftware/hbtools/releases).
 
-There are several package, which differ by HBase and Hadoop library version. Pick up the one appropriate for your context.
+hbdump MUST be used on properly configured Hadoop client node. (i.e `hbase shell` must be functional)
 
 You can launch hbdump by following command:
 
-	java -jar hbdump_XXXXX-0.1.0.jar --help
+    export HADOOP_CLASSPATH=`hbase classpath`:`hadoop classpath`:./hbdump_uber-X.X.X.jar
+    java  -classpath $HADOOP_CLASSPATH com.kappaware.hbdump.Main --help
 
 Which should give the following output:
 
-	Option (* = required)              Description
-	---------------------              -----------
-	--help                             Display this usage message
-	--namespace <mynamespace>          HBase namespace (default: default)
-	--outputFile <output file>         HBase JSON output data file (Default to stdout)
-	* --table <mytable>                HBase table
-	--znodeParent <znodeParent>        HBase znode parent (default: /hbase)
-	* --zookeeper <zk1:2181,zk2:2181>  Comma separated values of Zookeeper nodes
-
-Here is a short explanation of the options:
-
-* `table:` The HBase table you want to dump.
-
-* `namespaces:` The namespace of the table you want to dump.
-
-* `outputFile:` The output file.
-
-* `zookeeper:` Must be filled with the zookeeper's quorum of your target cluster. 
-
-* `znodeParent:` Must match the value of the property `zookeeper.znode.parent` in `hbase-site.xml`. Should be `/hbase` in most case, `/hbase-unsecure` on some HDP cluster.
-
+	Option (* = required)                   Description
+	---------------------                   -----------
+	--clientRetries <Integer: nbr_retries>  Number of connection attemps before failure (default: 6)
+	--configFile <xxxx-site.xml>            Configuration file (xxx-site.xml). May be specified several times
+	--dumpConfigFile <dump_file>            Debugging purpose: All HBaseConfiguration will be dumped in this file
+	--help                                  Display this usage message
+	--keytab <keytab_file>                  Keytyab file path
+	--namespace <mynamespace>               HBase namespace (default: default)
+	--outputFile <output file>              HBase JSON output data file (Default to stdout)
+	--principal <principal>                 Kerberos principal
+	* --table <mytable>                     HBase table
+	
+	
 *** 
 ## hbload
 
-hbload is provided as an all included jar (uberJar or fatJar)  on the [release pages](https://github.com/BROADSoftware/hbtools/releases).
+hbload is provided as jar on the [release pages](https://github.com/BROADSoftware/hbtools/releases).
 
-There are several package, which differ by HBase and Hadoop library version. Pick up the one appropriate for your context.
+hbload MUST be used on properly configured Hadoop client node. (i.e `hbase shell` must be functional)
 
 You can launch hbload by following command:
 
-	java -jar hbload_XXXXX-0.1.0.jar --help
+    export HADOOP_CLASSPATH=`hbase classpath`:`hadoop classpath`:./hbload_uber-X.X.X.jar
+    java  -classpath $HADOOP_CLASSPATH com.kappaware.hbload.Main --help
 
 Which should give the following output:
 
-	Option (* = required)              Description
-	---------------------              -----------
-	--delRows                          Delete rows in table if not defined in file
-	--delValues                        Delete column value in row if not defined in file
-	--dontAddRow                       Do not add row in table if does not exist
-	--dontAddValue                     Do not add column value if not existing in a row
-	--help                             Display this usage message
-	* --inputFile <input file>         HBase JSON data file
-	--namespace <mynamespace>          HBase namespace (default: default)
-	* --table <mytable>                HBase table
-	--updValues                        Update column value in row if different
-	--znodeParent <znodeParent>        HBase znode parent (default: /hbase)
-	* --zookeeper <zk1:2181,zk2:2181>  Comma separated values of Zookeeper nodes
+	Option (* = required)                   Description
+	---------------------                   -----------
+	--clientRetries <Integer: nbr_retries>  Number of connection attemps before failure (default: 6)
+	--configFile <xxxx-site.xml>            Configuration file (xxx-site.xml). May be specified several times
+	--delRows                               Delete rows in table if not defined in file
+	--delValues                             Delete column value in row if not defined in file
+	--dontAddRow                            Do not add row in table if does not exist
+	--dontAddValue                          Do not add column value if not existing in a row
+	--dumpConfigFile <dump_file>            Debugging purpose: All HBaseConfiguration will be dumped in this file
+	--help                                  Display this usage message
+	* --inputFile <input file>              HBase JSON data file
+	--keytab <keytab_file>                  Keytyab file path
+	--namespace <mynamespace>               HBase namespace (default: default)
+	--principal <principal>                 Kerberos principal
+	* --table <mytable>                     HBase table
+	--updValues                             Update column value in row if different
 
-
-Here is a short explanation of the options:
-
-* `table:` The HBase table you want to load into.
-
-* `namespaces:` The namespace of the table you want to load into.
-
-* `outputFile:` The input file. See below for its format
-
-* `zookeeper:` Must be filled with the zookeeper's quorum of your target cluster. 
-
-* `znodeParent:` Must match the value of the property `zookeeper.znode.parent` in `hbase-site.xml`. Should be `/hbase` in most case, `/hbase-unsecure` on some HDP cluster.
-
-* `delRows:` See explanation below.
-
-* `delValues:` See explanation below. 
-
-* `dontAddRow:` See explanation below. 
-
-* `dontAddValue:` See explanation below. 
-
-* `updValues:` See explanation below.
 
 ### Idempotency
 
@@ -151,6 +126,18 @@ Also, note the hbdump will not escape printable characters, so, for example "700
 ## Limitations
 
 * hbtools does not handle HBase cell's timestamp.
+
+***
+## Kerberos secured cluster
+
+In the case your Hadoop cluster is protected by Kerberos, you have two methods to provide authentication.
+
+* Using the `--principal` and `--keytab` parameters.
+
+* Issue a `kinit` command before launching hbdump or hbload. (You then can check your ticket with the `klist` command).
+
+In both case, the operation will be performed on behalf of the owner of the ticket. Ensure this user has got sufficient access privileges on HBase.
+
 
 ***
 ## License

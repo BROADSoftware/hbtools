@@ -15,37 +15,34 @@
  */
  
 
-defaultTasks 'all'
-
+defaultTasks 'uberJar'
 
 dependencies {
- 	compile project(':hbcommon')        
+ 	//compileAndJar project(path: ':hbcommon')        
+ 	compile project(path: ':hbcommon')        
     compile "org.apache.hbase:hbase-client:$hbaseVersion"
     compile "org.apache.hadoop:hadoop-mapreduce-client-core:$hadoopVersion"		
     compile "org.apache.hadoop:hadoop-common:$hadoopVersion"		
     compile "org.apache.hadoop:hadoop-auth:$hadoopVersion"		
+ 	compileAndJar "net.sf.jopt-simple:jopt-simple:$joptVersion"
+    compileAndJar "com.fasterxml.jackson.core:jackson-databind:$jacksonVersion"
     testCompile "junit:junit:$junitVersion"
 }
 
 
 //create a single Jar with all dependencies
-task fatJar(type: Jar) {
+task uberJar(type: Jar) {
 	manifest {
         attributes 'Implementation-Title': 'hbload', 
         	'Implementation-Version': version,
         	'Main-Class': 'com.kappaware.hbload.Main'
     }
-    baseName = fatJarBaseName
-    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    baseName = project.name + "_uber"
+    from { configurations.compileAndJar.collect { it.isDirectory() ? it : zipTree(it) } }
+    //from { getRootProject().subprojects.findAll{it.name == 'hbcommon'}.configurations.compileAndJar.collect { it.isDirectory() ? it : zipTree(it) } } 
+	from getRootProject().subprojects.findAll{it.name == 'hbcommon'}.sourceSets.main.output
     with jar
 }
 
 
-
-task all(type: GradleBuild) {
-  tasks =  [
-  	'fatJar_hdp24',
-  	'fatJar_cdh552'
-  ]
-}
 

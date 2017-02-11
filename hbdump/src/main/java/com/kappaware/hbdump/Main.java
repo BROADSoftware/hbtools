@@ -24,7 +24,6 @@ import java.util.List;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
 import org.apache.hadoop.hbase.CellUtil;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.Connection;
 import org.apache.hadoop.hbase.client.ConnectionFactory;
@@ -41,6 +40,7 @@ import com.kappaware.hbtools.common.HDataFile;
 import com.kappaware.hbtools.common.HDataFile.HDFamily;
 import com.kappaware.hbtools.common.HDataFile.HDRow;
 import com.kappaware.hbtools.common.ParserHelpException;
+import com.kappaware.hbtools.common.Utils;
 
 public class Main {
 	static Logger log = LoggerFactory.getLogger(Main.class);
@@ -72,9 +72,7 @@ public class Main {
 				throw new ConfigurationException(String.format("Unable to open '%s' for writing", file.getAbsolutePath()));
 			}
 		}
-		Configuration config = HBaseConfiguration.create();
-		config.set("hbase.zookeeper.quorum", parameters.getZookeeper());
-		config.set("zookeeper.znode.parent", parameters.getZnodeParent());
+		Configuration config = Utils.buildHBaseConfiguration(parameters); 
 		Connection connection = ConnectionFactory.createConnection(config);
 		TableName tableName = TableName.valueOf(parameters.getNamespace(), parameters.getTable());
 		Table table = connection.getTable(tableName);

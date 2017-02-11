@@ -28,11 +28,11 @@ subprojects {
 	}
 
 	// Refer to https://issues.gradle.org/browse/GRADLE-1010
-	eclipseJdt << {
+	eclipseJdt.doLast( {
  		File f = file('.settings/org.eclipse.core.resources.prefs')
     	f.write('eclipse.preferences.version=1\n')
     	f.append('encoding/<project>=UTF-8')
-	}
+	})
 	
 	test {
     	testLogging {
@@ -55,23 +55,11 @@ subprojects {
     	archives sourcesJar
     	archives docJar
 	}
-
-	List variations = [ 
-		[ name: "hdp24", hbaseVersion: "1.1.2", hadoopVersion: "2.7.1"  ],	
-		[ name: "cdh552", hbaseVersion: "1.0.0", hadoopVersion: "2.6.0" ]
-	]
-
-	for (cf in variations) {
-		tasks.create(name: "fatJar_${cf.name}", type: GradleBuild) {
-    		startParameter = project.getGradle().getStartParameter().newInstance()
-	  		startParameter.projectProperties += [hbaseVersion: "${cf.hbaseVersion}"]
-	  		startParameter.projectProperties += [hadoopVersion: "${cf.hadoopVersion}"]
-	  		startParameter.projectProperties += [fatJarBaseName: "${project.name}_${cf.name}"]
-	  		//println startParameter.projectProperties
-	    	tasks = ['fatJar','eclipse']
-		}
+	
+	configurations {
+		compileAndJar
+		compile.extendsFrom(compileAndJar)
 	}
-
 	
 }
 
@@ -101,9 +89,9 @@ project(':main') {
 // Also, we can call a gradle script in a separated context (Using dir or buildFile attribute) (Refer to 62.5 of gradle doc)
 task all(type: GradleBuild) {
 	tasks = [
-		':hbfaker:all', 
-		':hbdump:all', 
-		':hbload:all' 
+		':hbfaker:fatJar', 
+		':hbdump:uberJar', 
+		':hbload:uberJar' 
 	]
 }
 

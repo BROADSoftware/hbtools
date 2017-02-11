@@ -16,7 +16,7 @@
  
 
 
-defaultTasks 'all'
+defaultTasks 'fatJar'
 
 dependencies {
  	compile project(':hbcommon')        
@@ -38,9 +38,3 @@ task fatJar(type: Jar) {
 }
 
 
-
-task all(type: GradleBuild) {
-  tasks =  [
-  	'fatJar',
-  ]
-}

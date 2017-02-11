@@ -21,7 +21,6 @@ import java.util.Vector;
 
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.Cell;
-import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.TableName;
 import org.apache.hadoop.hbase.client.BufferedMutator;
 import org.apache.hadoop.hbase.client.Connection;
@@ -36,9 +35,11 @@ import org.apache.hadoop.hbase.util.Bytes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.kappaware.hbtools.common.ConfigurationException;
 import com.kappaware.hbtools.common.HDataFile.HDFamily;
 import com.kappaware.hbtools.common.HDataFile.HDRow;
 import com.kappaware.hbtools.common.HDataFile.HDTable;
+import com.kappaware.hbtools.common.Utils;
 
 public class Engine {
 	static Logger log = LoggerFactory.getLogger(Engine.class);
@@ -51,13 +52,12 @@ public class Engine {
 	private Connection connection;
 	private Table table;
 	private BufferedMutator mutator;
-
-	Engine(Parameters parameters, HDTable data) {
+	
+	
+	Engine(Parameters parameters, HDTable data) throws ConfigurationException, IOException {
 		this.parameters = parameters;
 		this.data = data;
-		this.config = HBaseConfiguration.create();
-		this.config.set("hbase.zookeeper.quorum", parameters.getZookeeper());
-		this.config.set("zookeeper.znode.parent", parameters.getZnodeParent());
+		this.config = Utils.buildHBaseConfiguration(parameters);
 		this.tableName = TableName.valueOf(parameters.getNamespace(), parameters.getTable());
 	}
 
