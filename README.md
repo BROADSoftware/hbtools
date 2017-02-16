@@ -90,7 +90,7 @@ If the hbase table already contains some data, the default behavior is 'Just add
 
 If you set the switch combination `--dontAddRow --dontAddValue`, then hbload will do nothing.
 
-If you set the switch combination `--delRows --delValue  --updValues`, then the content of the table will be adjusted to be fully identical to the content of the input file.  
+If you set the switch combination `--delRows --delValues  --updValues`, then the content of the table will be adjusted to be fully identical to the content of the input file.  
 
 ** WARNING: hbload does not dynamically create HBase column family. All column family referenced in the input file must exist. Or an error will be generated.** 
 
